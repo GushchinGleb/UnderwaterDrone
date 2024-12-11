@@ -32,8 +32,6 @@
 *.app
 
 # 3D
-*.m3d
-*.a3d
 *.bak
 *.stl
 *.log
