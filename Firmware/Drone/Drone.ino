@@ -1,27 +1,31 @@
-#include <SPI.h>
-#include <RF24.h>
+#include "motor.h"
+#include "mpu6050.h"
 
-const int CE_PIN = 9;
-const int CSN_PIN = 10;
-RF24 radio(CE_PIN, CSN_PIN);  // Create RF24 object
-
-const byte address[6] = "00001";  // Address for communication
-int dataToSend = 123;  // Sample data to send
+#include <Wire.h>
 
 void setup() {
   Serial.begin(9600);
-  radio.begin();  // Start the radio
-  radio.setPALevel(RF24_PA_LOW);  // Set power level
-  radio.openWritingPipe(address);  // Open the writing pipe
-  radio.stopListening();  // Stop listening to be able to transmit
+  Wire.begin();
+
+  motor_init();
+  mpu6050_init();
+  
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
 }
 
+long counter = 0;
+short act = 0;
+
 void loop() {
-  bool success = radio.write(&dataToSend, sizeof(dataToSend));
-  if (success) {
-    Serial.println("Data sent successfully");
-  } else {
-    Serial.println("Failed to send data");
+  int16_t mpu_data[7];
+  mpu6050_getData(mpu_data);
+
+  for (uint8_t i = 0; i < 7; ++i) {
+    Serial.print(mpu_data[i]);
+    Serial.print(' ');
   }
-  delay(1000);  // Send data every second
+  Serial.print("                        \r");
+
+  delay(500);
 }
