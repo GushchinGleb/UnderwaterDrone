@@ -6,6 +6,10 @@
 #define HMC_D_Y 1
 #define HMC_D_Z 2
 
+/**
+ * @brief THe function initialize the sensor.A_DATA_OUT
+ * Required Wire been initialised before call.
+ */
 void hmc5883_init();
 
 /**

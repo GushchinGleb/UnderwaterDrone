@@ -1,0 +1,19 @@
+{
+    "cSpell.words": [
+        "DGPS",
+        "GPGGA",
+        "nmea"
+    ],
+    "files.associations": {
+        
+    },
+    "C_Cpp.default.defines": [
+       "USBCON = 1"       
+    ]
+    // "C_Cpp.default.forcedInclude": [
+    //     "{workspaceFolder}/.vscode/undef.h"
+    // ]
+    // "C_Cpp.default.compilerArgs": [
+    //    "-U", "__GNUC__"
+    // ]
+}
