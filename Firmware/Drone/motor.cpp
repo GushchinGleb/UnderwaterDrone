@@ -3,23 +3,29 @@
 #include "motor.h"
 
 // Pins
-#define MOTOR_L_F  (7) // left forward
-#define MOTOR_L_B  (8) // left backward
-#define MOTOR_R_F  (9) // right forward
-#define MOTOR_R_B (10) // right backward
+#define MOTOR_L_F (23) // left forward
+#define MOTOR_L_B (25) // left backward
+#define MOTOR_L_P  (7) // left power
+#define MOTOR_R_F (27) // right forward
+#define MOTOR_R_B (29) // right backward
+#define MOTOR_R_P  (8) // right power
 
 #define MAX_VAL (255)
 
 void motor_init() {
+    pinMode(MOTOR_L_P, OUTPUT);
+    pinMode(MOTOR_R_P, OUTPUT);
+    analogWrite(MOTOR_L_P, 0);
+    analogWrite(MOTOR_R_P, 0);
+
     pinMode(MOTOR_L_F, OUTPUT);
     pinMode(MOTOR_L_B, OUTPUT);
     pinMode(MOTOR_R_F, OUTPUT);
     pinMode(MOTOR_R_B, OUTPUT);
-
-    analogWrite(MOTOR_L_F, 0);
-    analogWrite(MOTOR_L_B, 0);
-    analogWrite(MOTOR_R_F, 0);
-    analogWrite(MOTOR_R_B, 0);
+    digitalWrite(MOTOR_L_F, LOW);
+    digitalWrite(MOTOR_L_B, LOW);
+    digitalWrite(MOTOR_R_F, LOW);
+    digitalWrite(MOTOR_R_B, LOW);
 }
 
 void motor_move(float x, float a) {
@@ -32,23 +38,5 @@ void motor_move(float x, float a) {
     ar = max(min(MAX_VAL, ar), -MAX_VAL);
     al = max(min(MAX_VAL, al), -MAX_VAL);
 
-    if (ar >= 0) {
-        analogWrite(MOTOR_R_B, 0);
-        analogWrite(MOTOR_R_F, ar);
-    } else {
-        analogWrite(MOTOR_R_F, 0);
-        analogWrite(MOTOR_R_B, -ar);
-    }
-
-    if (al >= 0) {
-        analogWrite(MOTOR_L_B, 0);
-        analogWrite(MOTOR_L_F, al);
-    } else {
-        analogWrite(MOTOR_L_F, 0);
-        analogWrite(MOTOR_L_B, -al);
-    }
-
-    Serial.print(al);
-    Serial.print(' ');
-    Serial.println(ar);
+    // TODO: controle motors
 }
