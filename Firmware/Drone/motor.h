@@ -12,3 +12,12 @@ void motor_init();
  * @param a[IN] rotate [-1, 1]. Positive -- right.
  */
 void motor_move(float x, float a);
+
+/**
+ * @brief
+ * - The function send value to the chanel.
+ * - The motors will rotate until nex function call.
+ * @param chanel[IN] see CHS from RF24-rec.h
+ * @param value[IN] value [-255, 255]. Positive -- front / up / out.
+ */
+void motor_chanel(uint8_t chanel, int16_t value);
