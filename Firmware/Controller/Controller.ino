@@ -1,27 +1,83 @@
 #include <SPI.h>
+#include <nRF24L01.h>
 #include <RF24.h>
 
-const int CE_PIN = 9;
-const int CSN_PIN = 10;
-RF24 radio(CE_PIN, CSN_PIN);  // Create RF24 object
+#include "RF24-snd.h"
 
-const byte address[6] = "00001";  // Address for communication
-int dataToSend = 123;  // Sample data to send
+#define CE_PIN 9
+#define CSN_PIN 8
+
+RF24 radio(CE_PIN, CSN_PIN);
+
+bool send_from_serial();
+void send_ONLINE();
+
+uint32_t t; // current time millis
 
 void setup() {
   Serial.begin(9600);
-  radio.begin();  // Start the radio
-  radio.setPALevel(RF24_PA_LOW);  // Set power level
-  radio.openWritingPipe(address);  // Open the writing pipe
-  radio.stopListening();  // Stop listening to be able to transmit
+
+  RF24_init(radio, Serial);
+
+  t = millis();
 }
 
 void loop() {
-  bool success = radio.write(&dataToSend, sizeof(dataToSend));
-  if (success) {
-    Serial.println("Data sent successfully");
-  } else {
-    Serial.println("Failed to send data");
+  static uint32_t send_tmg = t; // send ONLINE timing
+
+  t = millis();
+
+  if (send_from_serial()) {
+    send_tmg = t + 500; // 0.5s delay
   }
-  delay(1000);  // Send data every second
+
+  if (t > send_tmg) {
+    send_tmg = t + 500;
+    send_ONLINE();
+  }
+}
+
+bool send_from_serial() {
+  if (!Serial.available()) {
+    return false;
+  }
+
+  String data = Serial.readStringUntil('\n'); // Read from Serial Monitor
+  Serial.print("Sending: ");
+  Serial.println(data.c_str());
+
+  /**
+   * @brief the command will send to the drone
+   * - X -- X axis
+   * - Y -- rotate
+   * - Z -- depth
+   * - O -- ONLINE
+   */
+  char command_c = '\0';
+  RF24_com_t command;
+  sscanf(data.c_str(), "%c %i", &command_c, &command.value);
+  Serial.print("Char(HEX): ");
+  Serial.print(command_c, HEX);
+  Serial.print(" -> CH: ");
+
+  switch (command_c) {
+  case 'x': command.chanel = CHS::X; break;
+  case 'y': command.chanel = CHS::Y; break;
+  case 'z': command.chanel = CHS::Z; break;
+  default: return false;
+  }
+
+  Serial.print(command.chanel, DEC);
+  Serial.print(" = ");
+  Serial.println(command.value, DEC);
+
+  RF24_send(radio, command);
+
+  return true;
+}
+
+void send_ONLINE() {
+  RF24_com_t command = {.chanel = CHS::O, .value = 0x1};
+  RF24_send(radio, command);
+  return;
 }

@@ -1,0 +1,3 @@
+#bin/bash
+
+~/bin/arduino-cli compile --fqbn arduino:avr:uno Controller.ino
