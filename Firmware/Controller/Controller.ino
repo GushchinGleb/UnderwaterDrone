@@ -27,12 +27,10 @@ void loop() {
 
   t = millis();
 
-  if (send_from_serial()) {
-    send_tmg = t + 500; // 0.5s delay
-  }
+  send_from_serial();
 
   if (t > send_tmg) {
-    send_tmg = t + 500;
+    send_tmg = t + 250;
     send_ONLINE();
   }
 }
@@ -42,38 +40,70 @@ bool send_from_serial() {
     return false;
   }
 
-  String data = Serial.readStringUntil('\n'); // Read from Serial Monitor
-  Serial.print("Sending: ");
-  Serial.println(data.c_str());
+  int character = Serial.read();
+
+  Serial.print((char)character);
+
+  static RF24_com_t command;
 
   /**
-   * @brief the command will send to the drone
-   * - X -- X axis
-   * - Y -- rotate
-   * - Z -- depth
-   * - O -- ONLINE
+   * 0 - wait for symbol
+   * 1 - wait for value
+   *
+   * 0 -> 1 -> 0 ...
    */
-  char command_c = '\0';
-  RF24_com_t command;
-  sscanf(data.c_str(), "%c %i", &command_c, &command.value);
-  Serial.print("Char(HEX): ");
-  Serial.print(command_c, HEX);
-  Serial.print(" -> CH: ");
+  static uint8_t machine_state = 0;
 
-  switch (command_c) {
-  case 'x': command.chanel = CHS::X; break;
-  case 'y': command.chanel = CHS::Y; break;
-  case 'z': command.chanel = CHS::Z; break;
-  default: return false;
+  /**
+   * 0 - positive
+   * 1 - negative
+   */
+  static int16_t machine_state_neg = 0;
+
+  #define SET_STATE(state) command.chanel = CHS::state; machine_state = 1; machine_state_neg = 0; command.value = 0; break
+
+  switch (machine_state) {
+  case 0: // wait for chanel id symbol
+    switch (character) {
+    case 'L': SET_STATE(L); // left motor
+    case 'R': SET_STATE(R); // right motor
+    case 'l': SET_STATE(l); // left ballast
+    case 'r': SET_STATE(r); // right ballast
+    case 'O': SET_STATE(O); // online signal
+    case '\r':
+    case '\n':
+      Serial.println("resset");
+      machine_state = 0;
+      break;
+    default: break; // skip not described symbols, without errors errors.
+    }
+    break;
+
+  case 1: // wait for channel value
+    if (character == '-') {
+      machine_state_neg = 1; // number is negative
+    } else if (character >= '0' && character <= '9') {
+      command.value *= 10;
+      command.value += character - '0';
+    } else if (character == '\n' || character == '\r') {
+      if (machine_state_neg) command.value = -command.value;
+
+      RF24_send(radio, command);
+      Serial.print("Send: ch: ");
+      Serial.print(command.chanel);
+      Serial.print(" value: ");
+      Serial.println(command.value);
+
+      machine_state = 0; // wait for a new command
+      return true;
+    }
+    break;
+  default:
+    machine_state = 0; // error wait for a command character
+    break;
   }
 
-  Serial.print(command.chanel, DEC);
-  Serial.print(" = ");
-  Serial.println(command.value, DEC);
-
-  RF24_send(radio, command);
-
-  return true;
+  return false;
 }
 
 void send_ONLINE() {
