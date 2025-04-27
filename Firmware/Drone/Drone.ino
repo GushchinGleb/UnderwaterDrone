@@ -1,3 +1,4 @@
+#include "ballast.h"    // liquid ballast system
 #include "gy-neo6mv2.h" // GPS sensor
 #include "hmc5883l.h"   // magnitometer (compas)
 #include "motor.h"      // drivers for the motors
@@ -19,6 +20,7 @@
 
 static uint32_t t; // time from the start in milliseconds
 static uint32_t e_l; // event: lost signal
+static uint32_t e_s; // edge statuses
 
 static gy_neo6mv2_data_t gy_data; // gps data
 
@@ -33,6 +35,7 @@ void setup() {
   DBG_SER.begin(DBG_SPEED);
   Wire.begin();
 
+  ballast_init();
   gy_neo6mv2_init(gy_data);
   hmc5883_init();
   motor_init();
@@ -80,6 +83,12 @@ void loop() {
       motor_chanel(CHS::r, 140);
     }
   }
+
+  // if (t > e_s) {
+  //   e_s = t + 1000;
+  //   DBG_SER.print("Edges: ");
+  //   DBG_SER.println((1 << 7) | ballast_check_all(), BIN);
+  // }
 }
 
 void printData(const int16_t mpu[7], const int16_t hmc[3]) {
