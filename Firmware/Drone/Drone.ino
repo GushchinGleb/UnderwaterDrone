@@ -58,7 +58,7 @@ void loop() {
 
   if (RF24_command(radio, RF24_com)) { // command has been received
     if (RF24_com.chanel == CHS::O && RF24_com.value) { // valid online signal has arrived
-      e_l = t + 2000; // schedule lost signal event to 2 seconds into the future
+      e_l = t + 5000; // schedule lost signal event to 5 seconds into the future
       if (signal_lost) {
         motor_chanel(CHS::l, 0);
         motor_chanel(CHS::r, 0);

@@ -3,7 +3,7 @@
 # upload program
 
 # Run arduino-cli upload in the background
-~/bin/arduino-cli upload -p /dev/ttyUSB0 --fqbn arduino:avr:mega Drone.ino 2>&1 | tee upload.log &
+~/bin/arduino-cli upload -p /dev/ttyUSB1 --fqbn arduino:avr:mega Drone.ino 2>&1 | tee upload.log &
 UPLOAD_PID=$!
 
 # Monitor the process for a timeout or specific error

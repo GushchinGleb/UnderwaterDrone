@@ -77,7 +77,7 @@ void motor_chanel(uint8_t chanel, int16_t value) {
   else if (value < -255) value = -255;
 
   uint8_t bin_val = (uint8_t)(uint16_t)(value > 0 ? value : -value);
-  uint8_t sign = value & (1 << 7);
+  uint8_t sign = !!(value & (1 << 15));
 
   switch(chanel) {
   case CHS::L: CONTROL_MOTOR(MOTOR_E_L_F, MOTOR_E_L_B, MOTOR_E_L_P); // left engine

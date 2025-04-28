@@ -61,6 +61,6 @@ bool RF24_command(RF24& radio, RF24_com_t& command) {
   }
 
   command.chanel = data[0];
-  command.value = (int16_t)data[1] << 8 | data[2];
+  command.value = (int16_t)((uint16_t)data[1] << 8 | data[2]);
   return true;
 }
