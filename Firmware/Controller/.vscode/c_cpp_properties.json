@@ -1,0 +1,32 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/home/gleb/.arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino",
+                "/home/gleb/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/EEPROM/src",
+                "/home/gleb/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/HID/src",
+                "/home/gleb/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/SoftwareSerial/src",
+                "/home/gleb/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/SPI/src",
+                "/home/gleb/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/Wire/src",
+                "/home/gleb/.arduino15/packages/arduino/hardware/avr/1.8.6/variants/mega/",
+                "/home/gleb/.arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/avr/include",
+                "/home/gleb/Arduino/libraries/RF24"
+            ],
+            "defines": [
+                "USBCON",
+                "UBRR0H",
+                "UBRR1H",
+                "UBRR2H",
+                "UBRR3H",
+                "ARDUINO = 10"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}

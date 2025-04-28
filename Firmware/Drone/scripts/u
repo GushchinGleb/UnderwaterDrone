@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# upload program
+
+# Run arduino-cli upload in the background
+~/bin/arduino-cli upload -p /dev/ttyUSB1 --fqbn arduino:avr:mega Drone.ino 2>&1 | tee upload.log &
+UPLOAD_PID=$!
+
+# Monitor the process for a timeout or specific error
+TIMEOUT=10  # Adjust as needed
+
+SECONDS=0
+while kill -0 $UPLOAD_PID 2>/dev/null; do
+    if grep -q 'ioctl("TIOCMGET"): Inappropriate ioctl for device' upload.log; then
+        echo "Error detected: Killing avrdude..."
+        pkill -9 avrdude
+        break
+    fi
+
+    if [[ $SECONDS -ge $TIMEOUT ]]; then
+        echo "Timeout reached: Killing stuck process..."
+        kill -9 $UPLOAD_PID
+        pkill -9 avrdude
+        break
+    fi
+
+    sleep 1
+done
+
+# Cleanup
+rm -f upload.log
