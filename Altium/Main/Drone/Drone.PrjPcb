@@ -176,6 +176,23 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=
 
+[Document9]
+DocumentPath=BOAS_SCH.outjob
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+DocumentUniqueId=
+
 [GeneratedDocument1]
 DocumentPath=Project Outputs for Drone\main_PCB-RoundHoles.TXT
 DItemRevisionGUID=
@@ -229,12 +246,220 @@ DocumentPath=Project Outputs for Drone\main_PCB.RUL
 DItemRevisionGUID=
 
 [Parameter1]
+Name=DecimalNumber
+Value=
+
+[Parameter2]
+Name=Графа 04 - Литера
+Value=
+
+[Parameter3]
+Name=Графа 04 - Литера2
+Value=
+
+[Parameter4]
+Name=Графа 04 - Литера3
+Value=
+
+[Parameter5]
+Name=Графа 12 - Подпись
+Value=
+
+[Parameter6]
+Name=Графа 14 - Порядковый номер изменения
+Value=
+
+[Parameter7]
+Name=Графа 15 - Указания об изменении листа
+Value=
+
+[Parameter8]
+Name=Графа 16 - Номер извещения
+Value=
+
+[Parameter9]
+Name=Графа 19 - Инвентарный номер подлинника
+Value=
+
+[Parameter10]
+Name=Графа 20 - Подпись и дата приемки в СТД
+Value=
+
+[Parameter11]
+Name=Графа 21 - Взам. инв №
+Value=
+
+[Parameter12]
+Name=Графа 22 - Инвентарный номер дубликата
+Value=
+
+[Parameter13]
+Name=Графа 23 - Подпись и дата приемки дубликата в СТД
+Value=
+
+[Parameter14]
+Name=Графа 24 - Справ. №
+Value=
+
+[Parameter15]
+Name=Графа 28 - Номер и год утверждения литеры
+Value=
+
+[Parameter16]
+Name=Графа 29 - Номер и год утверждения документации
+Value=
+
+[Parameter17]
+Name=Графа 30 - Индекс заказчика
+Value=
+
+[Parameter18]
+Name=Децимальный номер печатного узла
+Value=
+
+[Parameter19]
+Name=Извещение_дата
+Value=
+
+[Parameter20]
+Name=Извещение_подпись
+Value=
+
+[Parameter21]
+Name=Код типа схемы
+Value=
+
+[Parameter22]
+Name=Компания
+Value=
+
+[Parameter23]
+Name=Компания1
+Value=Группа ИУ4-81Б
+
+[Parameter24]
+Name=Компания2
+Value=МГТУ имю Н.Э. Баумана
+
+[Parameter25]
+Name=Литера1
+Value= 
+
+[Parameter26]
+Name=Литера2
+Value= 
+
+[Parameter27]
+Name=Литера3
+Value= 
+
+[Parameter28]
+Name=Наименование
+Value=Плата кправления
+
+[Parameter29]
+Name=Наименование1
+Value=
+
+[Parameter30]
+Name=Наименование2
+Value=
+
+[Parameter31]
+Name=Начальник отдела
+Value=
+
+[Parameter32]
+Name=Начальник отдела ( альтернативное название параметра)
+Value=
+
+[Parameter33]
+Name=Начальник отдела_дата
+Value=
+
+[Parameter34]
+Name=Начальник отдела_подпись
+Value=
+
+[Parameter35]
+Name=Нормоконтроль
+Value=
+
+[Parameter36]
+Name=Нормоконтроль_дата
+Value=
+
+[Parameter37]
+Name=Нормоконтроль_подпись
+Value=
+
+[Parameter38]
+Name=Обозначение
+Value=
+
+[Parameter39]
 Name=Папка для сохранения графической документации
 Value=Документация
 
-[Parameter2]
+[Parameter40]
 Name=Папка для сохранения текстовой документации
 Value=Документация
+
+[Parameter41]
+Name=Первичная применяемость спецификации
+Value=
+
+[Parameter42]
+Name=Проверил
+Value=Журавлёва Л.В.
+
+[Parameter43]
+Name=Проверил_дата
+Value=
+
+[Parameter44]
+Name=Проверил_подпись
+Value=
+
+[Parameter45]
+Name=Разработал
+Value=Гущин Г.А.
+
+[Parameter46]
+Name=Разработал_дата
+Value=04.05.2025
+
+[Parameter47]
+Name=Разработал_подпись
+Value=
+
+[Parameter48]
+Name=Технолог
+Value=
+
+[Parameter49]
+Name=Технолог_дата
+Value=
+
+[Parameter50]
+Name=Технолог_подпись
+Value=
+
+[Parameter51]
+Name=Тип документа
+Value=
+
+[Parameter52]
+Name=Утвердил
+Value=
+
+[Parameter53]
+Name=Утвердил_дата
+Value=
+
+[Parameter54]
+Name=Утвердил_подпись
+Value=
 
 [Configuration1]
 Name=Sources
