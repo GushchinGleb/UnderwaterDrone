@@ -7,20 +7,20 @@
 // Pins
 
 // Motors
-#define MOTOR_E_L_F (36) // engine left  forward
-#define MOTOR_E_L_B (34) // engine left  backward
-#define MOTOR_E_L_P  (7) // engine left  power
-#define MOTOR_E_R_F (32) // engine right forward
-#define MOTOR_E_R_B (30) // engine right backward
-#define MOTOR_E_R_P  (5) // engine right power
+#define MOTOR_E_L_F (255) // engine left  forward
+#define MOTOR_E_L_B (255) // engine left  backward
+#define MOTOR_E_L_P (255) // engine left  power
+#define MOTOR_E_R_F (255) // engine right forward
+#define MOTOR_E_R_B (255) // engine right backward
+#define MOTOR_E_R_P (255) // engine right power
 
 // Ballast
-#define MOTOR_B_L_F (28) // ballast left  forward
-#define MOTOR_B_L_B (26) // ballast left  backward
-#define MOTOR_B_L_P  (6) // ballast left  power
-#define MOTOR_B_R_F (24) // ballast right forward
-#define MOTOR_B_R_B (22) // ballast right backward
-#define MOTOR_B_R_P  (4) // ballast right power
+#define MOTOR_B_L_F (255) // ballast left  forward
+#define MOTOR_B_L_B (255) // ballast left  backward
+#define MOTOR_B_L_P (255) // ballast left  power
+#define MOTOR_B_R_F (255) // ballast right forward
+#define MOTOR_B_R_B (255) // ballast right backward
+#define MOTOR_B_R_P (255) // ballast right power
 
 #define MAX_VAL (255)
 
@@ -73,6 +73,9 @@ void motor_move(float x, float a) {
   break
 
 void motor_chanel(uint8_t chanel, int16_t value) {
+#warning motor_chanel disabled
+  return;
+
   if (value > 255) value = 255;
   else if (value < -255) value = -255;
 

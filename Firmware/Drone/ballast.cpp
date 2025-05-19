@@ -2,10 +2,10 @@
 
 #include <Arduino.h>
 
-#define PIN_LE 10 // left  empty
-#define PIN_LF 11 // left  full
-#define PIN_RE 9  // right empty
-#define PIN_RF 8  // right full
+#define PIN_LE (255) // left  empty
+#define PIN_LF (255) // left  full
+#define PIN_RE (255) // right empty
+#define PIN_RF (255) // right full
 
 void ballast_init() {
   pinMode(PIN_LE, INPUT_PULLUP);

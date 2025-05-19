@@ -14,5 +14,9 @@ void mpu6050_init();
 
 /**
  * @param data[OUT] data from the accelerometer
+ * - [accX, accY, accZ, temp, gyrX, gyrY, gyrZ]
+ * - acc - acceleration
+ * - gyr - angular velocity
+ * - temp - temperature (raw)
  */
 void mpu6050_getData(int16_t data[7]);

@@ -45,7 +45,7 @@ bool RF24_command(RF24& radio, RF24_com_t& command) {
   if (data[0] == CHS::O) {
     Serial.print("ONLINE \r");
   }
-  else {
+  else if (data[0] != CHS::INVALID) {
     Serial.print(data[0], HEX);
     Serial.print(' ');
     Serial.print(data[1], HEX);

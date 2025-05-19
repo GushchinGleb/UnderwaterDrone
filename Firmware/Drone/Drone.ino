@@ -4,6 +4,7 @@
 #include "motor.h"      // drivers for the motors
 #include "mpu6050.h"    // accelerometr
 #include "RF24-rec.h"
+#include "MH-SD.h"
 
 #include "fast-math.h"
 
@@ -15,8 +16,8 @@
 #define DBG_SER (Serial) // debug serial instance
 #define DBG_SPEED (9600) // debug serial speed
 
-#define CE_PIN  42  // CE pin for nRF24L01+
-#define CSN_PIN 40  // CSN pin for nRF24L01+
+#define CE_PIN  10  // CE pin for nRF24L01+  | 23 | PB4
+#define CSN_PIN 11  // CSN pin for nRF24L01+ | 24 | PB5
 
 static uint32_t t; // time from the start in milliseconds
 static uint32_t e_l; // event: lost signal
@@ -29,26 +30,35 @@ RF24 radio(CE_PIN, CSN_PIN);
 void printData(const int16_t mpu[7], const int16_t hmc[3]);
 
 void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH);
-
   DBG_SER.begin(DBG_SPEED);
   Wire.begin();
 
-  ballast_init();
+  Serial.print(F("Drone firmware: " __DATE__ " : " __TIME__ "\n\r"));
+  Serial.print(F("F CPU: "));
+  Serial.println(F_CPU);
+
+  pinMode(10, OUTPUT);
+  pinMode(11, OUTPUT);
+  digitalWrite(10, HIGH);
+  digitalWrite(11, LOW);
+
+  // ballast_init();
   gy_neo6mv2_init(gy_data);
   hmc5883_init();
-  motor_init();
+  MHSD_init();
+  // motor_init();
   mpu6050_init();
   RF24_init(radio, DBG_SER);
 
-  t = millis();
-  e_l = t + 2000; // add two seconds
-
-  digitalWrite(LED_BUILTIN, LOW);
+  // t = millis();
+  // e_l = t + 2000; // add two seconds
 }
 
 void loop() {
+  while (DBG_SER.available()) {
+    DBG_SER.write(DBG_SER.read());
+  }
+
   static uint8_t signal_lost = 0;
   static uint8_t motor_status = 0;
 
@@ -84,10 +94,23 @@ void loop() {
     }
   }
 
+  // while (GY_SERIAL.available()) {
+  //   DBG_SER.write(GY_SERIAL.read());
+  // }
+
   // if (t > e_s) {
   //   e_s = t + 1000;
-  //   DBG_SER.print("Edges: ");
-  //   DBG_SER.println((1 << 7) | ballast_check_all(), BIN);
+  //   // DBG_SER.print("Edges: ");
+  //   // DBG_SER.println((1 << 7) | ballast_check_all(), BIN);
+
+  //   int16_t data[10];
+  //   mpu6050_getData(data);
+  //   hmc5883_getValues(&data[7]);
+  //   for (uint8_t i= 0; i < 10; ++i) {
+  //     Serial.print(data[i]);
+  //     Serial.print(" ");
+  //   }
+  //   Serial.println("");
   // }
 }
 

@@ -2,4 +2,6 @@
 
 # compile program
 
-~/bin/arduino-cli compile --fqbn arduino:avr:mega Drone.ino
+# ~/bin/arduino-cli compile --fqbn arduino:avr:mega Drone.ino --libraries ./lib
+
+~/bin/arduino-cli compile --fqbn MCUdude:megaCore:2560:clock=8MHz_internal Drone.ino --libraries ./lib

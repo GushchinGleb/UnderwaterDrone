@@ -1,0 +1,9 @@
+#bin/bash
+
+# upload program by avr
+
+HEX_PATH=~/.cache/arduino/sketches/CAC63E665C5C73A9B1BF32A23D082826
+
+echo avrdude -c usbasp -p m2560 -U flash:w:$HEX_PATH/Drone.ino.hex:i
+
+avrdude -c usbasp -p m2560 -U flash:w:$HEX_PATH/Drone.ino.hex:i
