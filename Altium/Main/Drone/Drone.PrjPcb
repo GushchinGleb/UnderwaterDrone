@@ -176,23 +176,6 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 DocumentUniqueId=
 
-[Document9]
-DocumentPath=BOAS_SCH.outjob
-AnnotationEnabled=1
-AnnotateStartValue=1
-AnnotationIndexControlEnabled=0
-AnnotateSuffix=
-AnnotateScope=All
-AnnotateOrder=-1
-DoLibraryUpdate=1
-DoDatabaseUpdate=1
-ClassGenCCAutoEnabled=1
-ClassGenCCAutoRoomEnabled=1
-ClassGenNCAutoScope=None
-DItemRevisionGUID=
-GenerateClassCluster=0
-DocumentUniqueId=
-
 [GeneratedDocument1]
 DocumentPath=Project Outputs for Drone\main_PCB-RoundHoles.TXT
 DItemRevisionGUID=
@@ -343,15 +326,15 @@ Value=МГТУ имю Н.Э. Баумана
 
 [Parameter25]
 Name=Литера1
-Value= 
+Value=
 
 [Parameter26]
 Name=Литера2
-Value= 
+Value=
 
 [Parameter27]
 Name=Литера3
-Value= 
+Value=
 
 [Parameter28]
 Name=Наименование
