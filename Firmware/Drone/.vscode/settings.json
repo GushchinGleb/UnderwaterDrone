@@ -1,9 +1,22 @@
 {
     "cSpell.words": [
+        "avrdude",
+        "DDRD",
+        "DDRH",
+        "DDRL",
         "DGPS",
         "GPGGA",
+        "lfuse",
         "MHSD",
-        "nmea"
+        "nmea",
+        "PIND",
+        "PORTD",
+        "PORTH",
+        "PORTL",
+        "rlength",
+        "rlngth",
+        "TCCR",
+        "usbasp"
     ],
     "files.associations": {
         "array": "cpp",
@@ -23,7 +36,6 @@
         "span": "cpp"
     },
     "C_Cpp.default.defines": [
-       "USBCON = 1"
     ]
     // "C_Cpp.default.forcedInclude": [
     //     "{workspaceFolder}/.vscode/undef.h"

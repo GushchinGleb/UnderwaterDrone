@@ -1,41 +1,35 @@
 #include "ballast.h"
 
 #include <Arduino.h>
+#include <avr/io.h>
 
-#define PIN_LE (255) // left  empty
-#define PIN_LF (255) // left  full
-#define PIN_RE (255) // right empty
-#define PIN_RF (255) // right full
+#define PIN_LE PD5
+#define PIN_LF PD4
+#define PIN_RE PD6
+#define PIN_RF PD7
 
 void ballast_init() {
-  pinMode(PIN_LE, INPUT_PULLUP);
-  pinMode(PIN_LF, INPUT_PULLUP);
-  pinMode(PIN_RE, INPUT_PULLUP);
-  pinMode(PIN_RF, INPUT_PULLUP);
+    // Clear bits 4–7 in DDRD to set PD4–PD7 as input
+  DDRD &= ~((1 << PIN_LE) | (1 << PIN_LF) | (1 << PIN_RE) | (1 << PIN_RF));
+
+  // Set bits 4–7 in PORTD to enable internal pull-up resistors
+  PORTD |= (1 << PIN_LE) | (1 << PIN_LF) | (1 << PIN_RE) | (1 << PIN_RF);
 
   return;
 }
 
-uint8_t ballast_check_all() {
-  return
-    digitalRead(PIN_LE) << BES::LE |
-    digitalRead(PIN_LF) << BES::LF |
-    digitalRead(PIN_RE) << BES::RE |
-    digitalRead(PIN_RF) << BES::RF;
-}
-
 inline bool ballast_check_left_empty() {
-  return digitalRead(PIN_LE);
+  return PIND & (1 << PIN_LE);
 }
 
 inline bool ballast_check_left_full() {
-  return digitalRead(PIN_LF);
+  return PIND & (1 << PIN_LF);
 }
 
 inline bool ballast_check_right_empty() {
-  return digitalRead(PIN_RE);
+  return PIND & (1 << PIN_RE);
 }
 
 inline bool ballast_check_right_full() {
-  return digitalRead(PIN_RF);
+  return PIND & (1 << PIN_RF);
 }

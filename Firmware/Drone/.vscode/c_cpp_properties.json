@@ -21,7 +21,8 @@
                 "UBRR1H",
                 "UBRR2H",
                 "UBRR3H",
-                "ARDUINO = 10"
+                "ARDUINO = 10",
+                "__AVR_ATmega2560__"
             ],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c17",

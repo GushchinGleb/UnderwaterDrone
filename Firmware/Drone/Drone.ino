@@ -42,21 +42,49 @@ void setup() {
   digitalWrite(10, HIGH);
   digitalWrite(11, LOW);
 
-  // ballast_init();
+  ballast_init();
   gy_neo6mv2_init(gy_data);
   hmc5883_init();
   MHSD_init();
-  // motor_init();
+  motor_init();
   mpu6050_init();
   RF24_init(radio, DBG_SER);
+
+  motor_chanel(CHS::R, 128);
+  delay(500);
+  motor_chanel(CHS::R, -128);
+  delay(500);
+  motor_chanel(CHS::R, 0);
+  motor_chanel(CHS::L, 128);
+  delay(500);
+  motor_chanel(CHS::L, -128);
+  delay(500);
+  motor_chanel(CHS::L, 0);
+
+  motor_chanel(CHS::r, 128);
+  delay(500);
+  motor_chanel(CHS::r, -128);
+  delay(500);
+  motor_chanel(CHS::r, 0);
+  motor_chanel(CHS::l, 128);
+  delay(500);
+  motor_chanel(CHS::l, -128);
+  delay(500);
+  motor_chanel(CHS::l, 0);
 
   // t = millis();
   // e_l = t + 2000; // add two seconds
 }
 
 void loop() {
-  while (DBG_SER.available()) {
-    DBG_SER.write(DBG_SER.read());
+  static uint32_t counter = 0;
+  ++counter;
+
+  static uint8_t first_time = 0;
+  if (DBG_SER.available() && !first_time) {
+    Serial.println(__LINE__);
+    DBG_SER.println(F("RX TX short circuit"));
+    first_time = 1;
   }
 
   static uint8_t signal_lost = 0;
@@ -89,8 +117,8 @@ void loop() {
       // Stop and go up.
       motor_chanel(CHS::L, 0);
       motor_chanel(CHS::R, 0);
-      motor_chanel(CHS::l, 140);
-      motor_chanel(CHS::r, 140);
+      motor_chanel(CHS::l, 0);
+      motor_chanel(CHS::r, 0);
     }
   }
 
@@ -98,20 +126,22 @@ void loop() {
   //   DBG_SER.write(GY_SERIAL.read());
   // }
 
-  // if (t > e_s) {
-  //   e_s = t + 1000;
-  //   // DBG_SER.print("Edges: ");
-  //   // DBG_SER.println((1 << 7) | ballast_check_all(), BIN);
+  if (t > e_s) {
+    e_s = t + 1000;
+    // DBG_SER.print("Edges: ");
+    // DBG_SER.println((1 << 7) | ballast_check_all(), BIN);
 
-  //   int16_t data[10];
-  //   mpu6050_getData(data);
-  //   hmc5883_getValues(&data[7]);
-  //   for (uint8_t i= 0; i < 10; ++i) {
-  //     Serial.print(data[i]);
-  //     Serial.print(" ");
-  //   }
-  //   Serial.println("");
-  // }
+    int16_t data[10];
+    mpu6050_getData(data);
+    hmc5883_getValues(&data[7]);
+    for (uint8_t i= 0; i < 10; ++i) {
+      Serial.print(data[i]);
+      Serial.print(" ");
+    }
+    Serial.print(counter);
+    Serial.println("");
+    counter = 0;
+  }
 }
 
 void printData(const int16_t mpu[7], const int16_t hmc[3]) {

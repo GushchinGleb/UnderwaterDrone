@@ -1,0 +1,9 @@
+#bin/bash
+
+# test path with HEX file
+
+HEX_PATH=~/.cache/arduino/sketches/CAC63E665C5C73A9B1BF32A23D082826
+
+echo ls -la $HEX_PATH/Drone.ino.hex
+
+ls -la $HEX_PATH/Drone.ino.hex
