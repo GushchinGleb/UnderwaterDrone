@@ -4,6 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/lib/I2Cdev",
+                "${workspaceFolder}/lib/MPU6050",
                 "${workspaceFolder}/lib/SD",
                 "/home/gleb/.arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino",
                 "/home/gleb/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/EEPROM/src",

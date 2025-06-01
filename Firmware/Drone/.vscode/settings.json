@@ -5,18 +5,22 @@
         "DDRH",
         "DDRL",
         "DGPS",
+        "EEPROM",
         "GPGGA",
         "lfuse",
         "MHSD",
         "nmea",
+        "PCICR",
         "PIND",
+        "PINL",
         "PORTD",
         "PORTH",
         "PORTL",
         "rlength",
         "rlngth",
         "TCCR",
-        "usbasp"
+        "usbasp",
+        "vect"
     ],
     "files.associations": {
         "array": "cpp",
