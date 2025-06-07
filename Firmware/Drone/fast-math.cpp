@@ -1,5 +1,7 @@
 #include "fast-math.h"
 
+#include <Arduino.h>
+
 #include <avr/pgmspace.h>  // Required for PROGMEM
 
 static const float sin_lookup_table_256[] = {
@@ -81,7 +83,7 @@ float f_speed(float t, float a, float d) {
 float f_sqrt(float v) {
   const uint32_t val = *(uint32_t*)&v; // set bin representation
 
-  int8_t  exp = (val >> 23 & 0xFF); // exponent
+  int8_t exp = (val >> 23 & 0xFF); // exponent
 
   // check edge cases (nan, inf)
   if ((uint8_t)exp == 0xFF) {
@@ -90,18 +92,19 @@ float f_sqrt(float v) {
 
   exp -= 127; // remove shift
   uint8_t sign = val >> 31;
-  uint32_t mantissa = val & 0x7FFFFF;
-  mantissa |= 0x800000; // add 1. ... that ignores in IEEE. New range is [1, 2)
+  uint32_t mantissa = val & 0x7FFFFFL;
+
+  mantissa |= 0x800000L; // add 1. ... that ignores in IEEE. New range is [1, 2)
 
   mantissa <<= exp & 1; // if exponent is odd number increase mantissa 2 times because the lowest bit will be removed. New range is [2, 4)
-  mantissa -= 0x800000; // remove 1 from increased mantissa. New range is [1, 3)
+  mantissa -= 0x800000L; // remove 1 from increased mantissa. New range is [1, 3)
 
   exp >>= 1;  // get "sqrt" from exp
   exp += 127; // shift exp back to IEEE format
 
   uint8_t addr = mantissa >> (25 - 8); // address of the cell in the lookup table (25 - 17 bits of mantissa)
   if (addr >= 192) { // some how overflow
-    uint32_t result = sign << 31 | (uint8_t)exp << 23 | 0x7FFFFF;
+    uint32_t result = sign << 31 | (uint8_t)exp << 23 | 0x7FFFFFL;
 
     return *(float*)&result;
   }
@@ -109,10 +112,10 @@ float f_sqrt(float v) {
   const float value_low = sqrt_lookup_table_193[addr];
   const float value_high = sqrt_lookup_table_193[addr + 1];
 
-  const float shift = (float)(mantissa & 0x1FFFF) / (float)0x20000; // get shift on linear approximation (last 17 bits of mantissa)
+  const float shift = (float)(mantissa & 0x1FFFFL) / (float)0x20000L; // get shift on linear approximation (last 17 bits of mantissa)
   const float value = value_low + (value_high - value_low) * shift; // get value on linear approximation
 
-  uint32_t result = sign << 31 | (uint8_t)exp << 23 | ((*(uint32_t*)&value) & 0x7FFFFF); // generate new IEEE754 float
+  uint32_t result = (uint32_t)sign << 31 | (uint32_t)exp << 23 | ((*(uint32_t*)&value) & 0x7FFFFFL); // generate new IEEE754 float
   return *(float*)&result;
 }
 
@@ -122,7 +125,7 @@ float f_rsqrt(float v) {
 
 	r  = v;
 	i  = *(long*)&r;
-	i  = 0x5f3759df - ( i >> 1 ); // bit representation is log2 of a IEEE number
+	i  = 0x5f3759dfL - ( i >> 1 ); // bit representation is log2 of a IEEE number
 	r  = *(float*) &i;
 
 	r  = r * (1.5F - ( v * 0.5F * r * r ));

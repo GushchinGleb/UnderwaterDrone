@@ -14,6 +14,8 @@
 #include <unistd.h>
 #include <errno.h>
 
+#define DS_PORT "/dev/ttyUSB1"
+
 int get_dualshock4_fd() {
   const char *dir_path = "/dev/input/by-id";
   DIR *dir = opendir(dir_path);
@@ -54,7 +56,7 @@ int get_dualshock4_fd() {
 #include <string.h>
 #include <errno.h>
 
-// Send X%d to /dev/ttyUSB0
+// Send X%d to DS_PORT
 int send_to_ttyusb0(char axis, int value) {
   // Configure serial port
   static struct termios tty;
@@ -62,10 +64,10 @@ int send_to_ttyusb0(char axis, int value) {
   static int fd = 0;
 
   if (init) {
-    const char *device = "/dev/ttyUSB0";
+    const char *device = DS_PORT;
     fd = open(device, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
-      perror("Error opening /dev/ttyUSB0");
+      perror("Error opening " DS_PORT);
       return -1;
     }
 
@@ -169,6 +171,7 @@ int main() {
     static int vblo = 0; // ballast left  outtake
     static int vbri = 0; // ballast right intake
     static int vbro = 0; // ballast right outtake
+    static int vmode = 0; // control mode 1 - direct, 2 - SAS, 3 - auto
 
     static unsigned invalid = 0xF; // 1111 // bits represent chanels
 
@@ -188,6 +191,8 @@ int main() {
         switch (ev.code) {
         case BTN_TL: vblo = ev.value ? 250 : 0; break;
         case BTN_TR: vbro = ev.value ? 250 : 0; break;
+        case BTN_A: vmode = 2; break; // SAS
+        case BTN_B: vmode = 1; break; // direct
         default:
           printf("Button event: code=0x%X value=%d\n", ev.code, ev.value);
           break;
@@ -201,25 +206,25 @@ int main() {
     if (millis() - last_send > 100) {
       last_send = millis();
 
-      int ch_R = -vx + 128 + vy - 128;
-      int ch_L = -vx + 128 - vy + 128;
+      int ch_X = vx - 128;
+      int ch_Y = vy - 128;
       int ch_r = vbri - vbro;
       int ch_l = vbli - vblo;
 
-      if (ch_R > 1000 || ch_R < -1000) printf("Please reconnect the controller\n");
+      if (ch_X > 1000 || ch_X < -1000) printf("Please reconnect the controller\n");
 
-      ch_R *= 2;
-      ch_L *= 2;
+      ch_X *= 2;
+      ch_Y *= 2;
       ch_r *= 2;
       ch_l *= 2;
 
-      DEADZONE(20, ch_R, invalid, 1 << 0);
-      DEADZONE(20, ch_L, invalid, 1 << 1);
+      DEADZONE(20, ch_X, invalid, 1 << 0);
+      DEADZONE(20, ch_Y, invalid, 1 << 1);
       DEADZONE(20, ch_r, invalid, 1 << 2);
       DEADZONE(20, ch_l, invalid, 1 << 3);
 
-      LIMIT(-200, ch_R, 200);
-      LIMIT(-200, ch_L, 200);
+      LIMIT(-200, ch_X, 200);
+      LIMIT(-200, ch_Y, 200);
       LIMIT(-200, ch_r, 200);
       LIMIT(-200, ch_l, 200);
 
@@ -229,10 +234,14 @@ int main() {
       }
 
       if (!invalid) {
-        send_to_ttyusb0('R', ch_R);
-        send_to_ttyusb0('L', ch_L);
+        send_to_ttyusb0('X', ch_X);
+        send_to_ttyusb0('Y', ch_Y);
         send_to_ttyusb0('r', ch_r);
         send_to_ttyusb0('l', ch_l);
+        if (vmode) {
+          send_to_ttyusb0('m', vmode);
+          vmode = 0;
+        }
       }
     }
   }

@@ -1,6 +1,7 @@
 #include "mpu6050.h"
 
 #include <Arduino.h>
+#include <SD.h>
 #include <Wire.h>
 #include <MPU6050_6Axis_MotionApps20.h>
 
@@ -8,9 +9,53 @@
 
 #define MPU_INT_PIN   48
 
+#define CONF_F F("mpu.txt")
+
 static uint8_t fifoBuffer[45];
 
+static uint8_t readRowUInt8(File& file);
+
+static int16_t readRowInt16(File& file);
+
+static uint8_t readRowUInt8(File& file) {
+  char s = '\0';
+  uint8_t result = 0;
+  while (file.available() && s != '\n') {
+    s = file.read();
+    if ('0' <= s && s <= '9') {
+      result *= 10;
+      result += s - '0';
+    }
+  }
+
+  return result;
+}
+
+static int16_t readRowInt16(File& file) {
+  char s = '\0';
+  int16_t result = 0;
+  uint8_t sign = 0;
+  while (file.available() && s != '\n') {
+    s = file.read();
+    if (s == '-') {
+      sign = 1;
+    } else if ('0' <= s && s <= '9') {
+      result *= 10;
+      result += s - '0';
+    }
+  }
+
+  return sign ? -result : result;
+}
+
 static void mean_sensors(MPU6050& mpu);
+
+// extern float sqrt_res;
+
+/**
+ * @param dir[OUT] Q6
+ */
+static uint8_t get_direction(const int32_t q[4], int16_t dir[3]);
 
 static const int buffersize = 70;     // количество итераций калибровки
 static const int acel_deadzone = 8;  // точность калибровки акселерометра (по умолчанию 8)
@@ -18,6 +63,31 @@ static const int gyro_deadzone = 6;   // точность калибровки �
 static int16_t ax, ay, az, gx, gy, gz;
 static int mean_ax, mean_ay, mean_az, mean_gx, mean_gy, mean_gz, state = 0;
 static int ax_offset, ay_offset, az_offset, gx_offset, gy_offset, gz_offset;
+
+static uint8_t get_direction(const int32_t q[4], int16_t dir[3]) {
+  const int8_t w = q[0] >> 23; // Q7
+  const int8_t x = q[1] >> 23; // Q7
+  const int8_t y = q[2] >> 23; // Q7
+  const int8_t z = q[3] >> 23; // Q7
+
+  // Optional: normalize (important if quaternion might be unnormalized)
+  // float r_norm = f_rsqrt(w*w + x*x + y*y + z*z);
+  // if (r_norm == 0.0f) return -1;
+  // w *= r_norm;
+  // x *= r_norm;
+  // y *= r_norm;
+  // z *= r_norm;
+
+  // sqrt_res = ((int32_t)w*w + (int32_t)x*x + (int32_t)y*y + (int32_t)z*z) / (float)(1 << 6);
+
+  // Rotate (1, 0, 0) using simplified quaternion rotation
+  // Q14
+  dir[0] = (1 << 14) - ((y*y + z*z) << 1);
+  dir[1] = (x*y + w*z) << 1;
+  dir[2] = (x*z - w*y) << 1;
+
+  return 0;
+}
 
 void mpu6050_calibrate(MPU6050& mpu) {
   mean_sensors(mpu);
@@ -52,6 +122,29 @@ void mpu6050_calibrate(MPU6050& mpu) {
     else gz_offset = gz_offset - mean_gz / (gyro_deadzone + 1);
     if (ready == 6) break;
   }
+
+  SD.remove(CONF_F);
+  /**
+   * - X accel [-32768; 32767]
+   * - Y accel [-32768; 32767]
+   * - Z accel [-32768; 32767]
+   * - X gyro  [-32768; 32767]
+   * - Y gyro  [-32768; 32767]
+   * - Z gyro  [-32768; 32767]
+   */
+  File MPU_options = SD.open(CONF_F, FILE_WRITE);
+  if (!MPU_options) {
+    return;
+  }
+
+  MPU_options.println(mpu.getXAccelOffset());
+  MPU_options.println(mpu.getYAccelOffset());
+  MPU_options.println(mpu.getZAccelOffset());
+  MPU_options.println(mpu.getXGyroOffset());
+  MPU_options.println(mpu.getYGyroOffset());
+  MPU_options.println(mpu.getZGyroOffset());
+
+  MPU_options.close();
 }
 
 static void mean_sensors(MPU6050& mpu) {
@@ -91,9 +184,46 @@ void mpu6050_init(MPU6050& mpu) {
   mpu.initialize();
   mpu.dmpInitialize();
   mpu.setDMPEnabled(true);
+
+  /**
+   * - X accel [-32768; 32767]
+   * - Y accel [-32768; 32767]
+   * - Z accel [-32768; 32767]
+   * - X gyro  [-32768; 32767]
+   * - Y gyro  [-32768; 32767]
+   * - Z gyro  [-32768; 32767]
+   */
+  File MPU_options = SD.open(CONF_F, FILE_READ);
+  if (!MPU_options) {
+    MPU_options.close();
+    SD.remove(CONF_F);
+    File MPU_options = SD.open(CONF_F, FILE_WRITE);
+    if (!MPU_options) {
+      MPU_options.close();
+      Serial.println(F("Failed to open mpu.conf"));
+      return;
+    }
+
+    const char data[] PROGMEM = "0\n0\n0\n0\n0\n0\n";
+    MPU_options.write(data, sizeof(data) - 1);
+
+    MPU_options.close();
+    return;
+  }
+
+  mpu.setXAccelOffset(readRowUInt8(MPU_options));
+  mpu.setYAccelOffset(readRowUInt8(MPU_options));
+  mpu.setZAccelOffset(readRowUInt8(MPU_options));
+  mpu.setXGyroOffset(readRowUInt8(MPU_options));
+  mpu.setYGyroOffset(readRowUInt8(MPU_options));
+  mpu.setZGyroOffset(readRowUInt8(MPU_options));
+
+  MPU_options.close();
+
+  Serial.println(F("MPU compete"));
 }
 
-uint8_t mpu6050_event(MPU6050& mpu, int32_t positioning[9], float angles[3]) {
+uint8_t mpu6050_event(MPU6050& mpu, int32_t positioning[9], int16_t direction[3]) {
   if (!mpu.dmpGetCurrentFIFOPacket(fifoBuffer)) {
     return 0;
   }
@@ -101,26 +231,60 @@ uint8_t mpu6050_event(MPU6050& mpu, int32_t positioning[9], float angles[3]) {
   int32_t q[4]; // quaternion Q 30
   int16_t gravity[4];
 
-  int32_t accel[3];
-
   mpu.dmpGetQuaternion(q, fifoBuffer);
   mpu.dmpGetGravity(gravity, fifoBuffer);
-  // mpu.dmpGetYawPitchRoll(angles, &q, &gravity);
+  // mpu.dmpGetYawPitchRoll_i(angles, q, gravity);
+  get_direction(q, direction);
 
-  mpu.dmpGetAccel(&positioning[0], fifoBuffer);
-  // mpu.dmpGetLinearAccel(&aaReal, &accel, &gravity);
-  // mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q);
+  int16_t accel_relative[3];
+  mpu.dmpGetAccel(accel_relative, fifoBuffer);
 
-  positioning[0] -= (int32_t)gravity[0] << 16;
-  positioning[1] -= (int32_t)gravity[1] << 16;
-  positioning[2] -= (int32_t)gravity[2] << 16;
+  const int16_t accel_real[3] = {
+    accel_relative[0] - gravity[0],
+    accel_relative[1] - gravity[1],
+    accel_relative[2] - gravity[2]
+  };
 
-  positioning[3] += positioning[0] >> 10; // Q 20
-  positioning[4] += positioning[1] >> 10; // Q 20
-  positioning[5] += positioning[2] >> 10; // Q 20
+  // mpu.dmpGetLinearAccelInWorld_i(positioning, accel_real, q);
+
+  // positioning[0] += (int32_t)( 0.012f  * ((float)(1L << 20) / 9.8067f / 2));
+  // positioning[1] += (int32_t)( 0.0901f * ((float)(1L << 20) / 9.8067f / 2));
+  // positioning[2] += (int32_t)(-0.008f  * ((float)(1L << 20) / 9.8067f / 2));
+
+  // memcpy(positioning, accel_relative, sizeof(accel_relative));
+
+  positioning[0] = accel_real[0];
+  positioning[1] = accel_real[1];
+  positioning[2] = accel_real[2];
+
+  // positioning[3] = gravity[0];
+  // positioning[4] = gravity[1];
+  // positioning[5] = gravity[2];
+
+  // positioning[6] = accel_relative[0];
+  // positioning[7] = accel_relative[1];
+  // positioning[8] = accel_relative[2];
+
+  positioning[3] += positioning[0]; // Q 20
+  positioning[4] += positioning[1]; // Q 20
+  positioning[5] += positioning[2]; // Q 20
   positioning[6] += positioning[3] >> 10; // Q 10
   positioning[7] += positioning[4] >> 10; // Q 10
   positioning[8] += positioning[5] >> 10; // Q 10
 
   return 1;
+}
+
+void mpu6050_measure(MPU6050& mpu, int16_t m[6 * 3]) {
+  for (uint8_t measure = 0; measure < 6; ++measure) {
+    Serial.println(F("Orientate..."));
+    delay(3000);
+    Serial.println(F("Start"));
+    mpu6050_calibrate(mpu);
+    mpu.setXAccelOffset(0);
+    mpu.setYAccelOffset(0);
+    mpu.setZAccelOffset(0);
+    mpu.getAcceleration(&m[measure * 3 + 0], &m[measure * 3 + 1], &m[measure * 3 + 2]);
+  }
+  Serial.println(F("Measurement completed"));
 }

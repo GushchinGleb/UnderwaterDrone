@@ -17,7 +17,16 @@ void motor_move(float x, float a);
  * @brief
  * - The function send value to the chanel.
  * - The motors will rotate until nex function call.
- * @param chanel[IN] see CHS from RF24-rec.h
+ * @param m_chanel[IN] see M_CS
  * @param value[IN] value [-255, 255]. Positive -- front / up / out.
  */
-void motor_chanel(uint8_t chanel, int16_t value);
+void motor_chanel(uint8_t m_chanel, int16_t value);
+
+/**
+ * @brief
+ * - The function send value to the chanel.
+ * - The motors will rotate until nex function call.
+ * @param x[IN] forward backward [-255, 255]
+ * @param y[IN] right left [-255, 255]
+ */
+void motor_control(int16_t x, int16_t y);

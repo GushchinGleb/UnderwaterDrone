@@ -520,6 +520,64 @@ uint8_t MPU6050_6Axis_MotionApps20::dmpGetLinearAccelInWorld(VectorInt16 *v, Vec
     v -> rotate(q);
     return 0;
 }
+
+// returns Q28
+#define mulQ30(x1, x2) (((x1) >> 16) * ((x2) >> 16))
+
+/**
+ * @param v[OUT] Q20
+ * @param vReal[IN] Q14
+ * @param q[IN] Q14
+ */
+uint8_t MPU6050_6Axis_MotionApps20::dmpGetLinearAccelInWorld_i(int32_t *v, const int16_t *vReal, const int32_t *q) {
+    // rotate measured 3D acceleration vector into original state
+    // frame of reference based on orientation quaternion
+    memcpy(v, vReal, sizeof(vReal));
+
+	const int32_t p1Q13[4] = {0, vReal[0] >> 1, vReal[1] >> 1, vReal[2] >> 1};
+
+	const int32_t qQ13[4] = {
+		q[0] >> 17,
+		q[1] >> 17,
+		q[2] >> 17,
+		q[3] >> 17
+	};
+
+	// quaternion multiplication: q * p, stored back in p
+	// p2 = q->getProduct(p1);
+	// Q26
+	const int32_t p2[4] = {
+		qQ13[0] * p1Q13[0] - qQ13[1] * p1Q13[1] - qQ13[2] * p1Q13[2] - qQ13[3] * p1Q13[3],  // new w
+		qQ13[0] * p1Q13[1] + qQ13[1] * p1Q13[0] + qQ13[2] * p1Q13[3] - qQ13[3] * p1Q13[2],  // new x
+		qQ13[0] * p1Q13[2] - qQ13[1] * p1Q13[3] + qQ13[2] * p1Q13[0] + qQ13[3] * p1Q13[1],  // new y
+		qQ13[0] * p1Q13[3] + qQ13[1] * p1Q13[2] - qQ13[2] * p1Q13[1] + qQ13[3] * p1Q13[0]   // new z
+	};
+
+	const int32_t q_conjQ10[4] = {
+		 qQ13[0] >> 3,
+		-qQ13[1] >> 3,
+		-qQ13[2] >> 3,
+		-qQ13[3] >> 3,
+	};
+
+	const int32_t p2Q10[4] = {
+		p2[0] >> 16,
+		p2[1] >> 16,
+		p2[2] >> 16,
+		p2[3] >> 16,
+	};
+
+	// quaternion multiplication: p * conj(q), stored back in p
+	// p3 = p2.getProduct(q_conj);
+	// v[0,1,2] = p[1,2,3];
+	// Q20
+	v[0] = p2Q10[0] * q_conjQ10[1] + p2Q10[1] * q_conjQ10[0] + p2Q10[2] * q_conjQ10[3] - p2Q10[3] * q_conjQ10[2];
+	v[1] = p2Q10[0] * q_conjQ10[2] - p2Q10[1] * q_conjQ10[3] + p2Q10[2] * q_conjQ10[0] + p2Q10[3] * q_conjQ10[1];
+	v[2] = p2Q10[0] * q_conjQ10[3] + p2Q10[1] * q_conjQ10[2] - p2Q10[2] * q_conjQ10[1] + p2Q10[3] * q_conjQ10[0];
+
+    return 0;
+}
+
 // uint8_t MPU6050_6Axis_MotionApps20::dmpGetGyroAndAccelSensor(long *data, const uint8_t* packet);
 // uint8_t MPU6050_6Axis_MotionApps20::dmpGetGyroSensor(long *data, const uint8_t* packet);
 // uint8_t MPU6050_6Axis_MotionApps20::dmpGetControlData(long *data, const uint8_t* packet);
@@ -573,6 +631,36 @@ uint8_t MPU6050_6Axis_MotionApps20::dmpGetYawPitchRoll(float *data, Quaternion *
     // roll: (tilt left/right, about X axis)
     data[2] = atan2(gravity -> y , gravity -> z);
     if (gravity -> z < 0) {
+        if(data[1] > 0) {
+            data[1] = PI - data[1];
+        } else {
+            data[1] = -PI - data[1];
+        }
+    }
+    return 0;
+}
+
+uint8_t MPU6050_6Axis_MotionApps20::dmpGetYawPitchRoll_i(float *data, int32_t *q, int16_t *gravity) {
+	const uint32_t q_w = q[0] >> 16;
+	const uint32_t q_x = q[1] >> 16;
+
+	const float q_xy = (q_x) * (q[2] >> 16);
+	const float q_wz = (q_w) * (q[3] >> 16);
+	const float q_ww = (q_w) * (q_w);
+	const float q_xx = (q_x) * (q_x);
+
+	const float gx = (float)(gravity[0]) / (float)(1 << 14);
+	const float gy = (float)(gravity[1]) / (float)(1 << 14);
+	const float gz = (float)(gravity[2]) / (float)(1 << 14);
+
+    // yaw: (about Z axis)
+    //data[0] = atan2(2 * q->x * q->y - 2 * q->w * q->z, 2 * q->w * q->w + 2 * q->x * q->x - 1);
+    data[0] = atan2(q_xy - q_wz, q_ww + q_xx - 0.5f);
+    // pitch: (nose up/down, about Y axis)
+    data[1] = atan2(gx, sqrt(gy * gy + gz * gz));
+    // roll: (tilt left/right, about X axis)
+    data[2] = atan2(gy, gz);
+    if (gz < 0) {
         if(data[1] > 0) {
             data[1] = PI - data[1];
         } else {

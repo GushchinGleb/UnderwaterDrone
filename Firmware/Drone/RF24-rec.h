@@ -4,19 +4,6 @@
 
 #include <RF24.h>
 
-enum CHS { // RF24 chanels of RF24_command
-  INVALID = 0x0,
-
-  L, // left motor
-  R, // right motor
-  l, // left ballast
-  r, // right ballast
-
-  O, // ONLINE
-
-  CHS_COUNT
-};
-
 typedef struct RF24_command {
   uint8_t chanel;
   int16_t value;

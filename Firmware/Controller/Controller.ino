@@ -65,11 +65,12 @@ bool send_from_serial() {
   switch (machine_state) {
   case 0: // wait for chanel id symbol
     switch (character) {
-    case 'L': SET_STATE(L); // left motor
-    case 'R': SET_STATE(R); // right motor
+    case 'X': SET_STATE(X); // left motor
+    case 'Y': SET_STATE(Y); // right motor
     case 'l': SET_STATE(l); // left ballast
     case 'r': SET_STATE(r); // right ballast
     case 'O': SET_STATE(O); // online signal
+    case 'm': SET_STATE(m); // online signal
     case '\r':
     case '\n':
       Serial.println("resset");

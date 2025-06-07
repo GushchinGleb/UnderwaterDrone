@@ -99,6 +99,7 @@ class MPU6050_6Axis_MotionApps20 : public MPU6050_Base {
         uint8_t dmpGetLinearAccelInWorld(int16_t *data, const uint8_t* packet=0);
         uint8_t dmpGetLinearAccelInWorld(VectorInt16 *v, const uint8_t* packet=0);
         uint8_t dmpGetLinearAccelInWorld(VectorInt16 *v, VectorInt16 *vReal, Quaternion *q);
+        uint8_t dmpGetLinearAccelInWorld_i(int32_t *v, const int16_t *vReal, const int32_t *q);
         uint8_t dmpGetGyroAndAccelSensor(int32_t *data, const uint8_t* packet=0);
         uint8_t dmpGetGyroAndAccelSensor(int16_t *data, const uint8_t* packet=0);
         uint8_t dmpGetGyroAndAccelSensor(VectorInt16 *g, VectorInt16 *a, const uint8_t* packet=0);
@@ -122,6 +123,7 @@ class MPU6050_6Axis_MotionApps20 : public MPU6050_Base {
 
         uint8_t dmpGetEuler(float *data, Quaternion *q);
         uint8_t dmpGetYawPitchRoll(float *data, Quaternion *q, VectorFloat *gravity);
+        uint8_t dmpGetYawPitchRoll_i(float *data, int32_t *q, int16_t *gravity);
 
         // Get Floating Point data from FIFO
         uint8_t dmpGetAccelFloat(float *data, const uint8_t* packet=0);

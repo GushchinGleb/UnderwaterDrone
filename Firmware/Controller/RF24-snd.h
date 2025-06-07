@@ -7,12 +7,14 @@
 enum CHS { // RF24 chanels of RF24_command
   INVALID = 0x0,
 
-  L, // left motor
-  R, // right motor
+  X, // left motor
+  Y, // right motor
   l, // left ballast
   r, // right ballast
 
   O, // ONLINE
+
+  m, // mode 1 - direct, 2 - SAS, 3 - auto
 
   CHS_COUNT
 };

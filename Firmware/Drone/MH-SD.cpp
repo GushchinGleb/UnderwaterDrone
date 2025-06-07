@@ -20,14 +20,14 @@ void MHSD_init() {
   Serial.println(F("SD card is present and ready."));
 
   // Optionally, try to open a file to be sure
-  File test_file = SD.open(F("test.txt"), FILE_WRITE);
-  if (test_file) {
-    Serial.println(F("Successfully opened test file for writing."));
-    test_file.println(F("SD card write test OK."));
-    test_file.close();
-  } else {
-    Serial.println(F("Failed to open file on SD card."));
-  }
+  // File test_file = SD.open(F("test.txt"), FILE_WRITE);
+  // if (test_file) {
+  //   Serial.println(F("Successfully opened test file for writing."));
+  //   test_file.println(F("SD card write test OK."));
+  //   test_file.close();
+  // } else {
+  //   Serial.println(F("Failed to open file on SD card."));
+  // }
 }
 
 uint8_t MHSD_read_offsets(int16_t offsets[6]) {
@@ -70,6 +70,21 @@ uint8_t MHSD_read_offsets(int16_t offsets[6]) {
   return counter;
 }
 
+uint8_t MHSD_write_measures(const int16_t measures[3]) {
+  File measures_file = SD.open(F("measures.txt"), FILE_WRITE);
+  if (!measures_file) {
+    return -1;
+  }
+
+  measures_file.print(measures[0]); measures_file.print(", ");
+  measures_file.print(measures[1]); measures_file.print(", ");
+  measures_file.print(measures[2]); measures_file.println("");
+
+  measures_file.close();
+
+  return 0;
+}
+
 void MHSD_write_offsets(const int16_t offsets[6]) {
   SD.remove(F("offsets.txt"));
   File offsets_file = SD.open(F("offsets.txt"), FILE_WRITE);
@@ -84,4 +99,8 @@ void MHSD_write_offsets(const int16_t offsets[6]) {
   offsets_file.println(offsets[4]);
   offsets_file.println(offsets[5]);
   offsets_file.close();
+}
+
+void MHSD_write_mpu () {
+
 }

@@ -2,6 +2,7 @@
 
 #include "motor.h"
 
+#include "chanels.h"
 #include "RF24-rec.h"
 
 // Pins
@@ -91,12 +92,33 @@ void motor_chanel(uint8_t chanel, int16_t value) {
   uint8_t sign = (value & (1 << 15)) ? 0x00 : 0xFF;
 
   switch(chanel) {
-  case CHS::L: CONTROL_MOTOR(PORTH, MOTOR_E_L_F, MOTOR_E_L_B, MOTOR_E_L_P); // left engine
-  case CHS::R: CONTROL_MOTOR(PORTH, MOTOR_E_R_F, MOTOR_E_R_B, MOTOR_E_R_P); // right engine
-  case CHS::l: CONTROL_MOTOR(PORTL, MOTOR_B_L_F, MOTOR_B_L_B, MOTOR_B_L_P); // left ballast
-  case CHS::r: CONTROL_MOTOR(PORTL, MOTOR_B_R_F, MOTOR_B_R_B, MOTOR_B_R_P); // ring ballast
+  case M_CS::M_L: CONTROL_MOTOR(PORTH, MOTOR_E_L_F, MOTOR_E_L_B, MOTOR_E_L_P); // left engine
+  case M_CS::M_R: CONTROL_MOTOR(PORTH, MOTOR_E_R_F, MOTOR_E_R_B, MOTOR_E_R_P); // right engine
+  case M_CS::M_l: CONTROL_MOTOR(PORTL, MOTOR_B_L_F, MOTOR_B_L_B, MOTOR_B_L_P); // left ballast
+  case M_CS::M_r: CONTROL_MOTOR(PORTL, MOTOR_B_R_F, MOTOR_B_R_B, MOTOR_B_R_P); // ring ballast
   default: break;
   }
 
   return;
+}
+
+void motor_control(int16_t x, int16_t y) {
+  int16_t r = x + y;
+  int16_t l = x - y;
+
+  if (r > 255) r = 255;
+  else if (r < -255) r = -255;
+  if (l > 255) l = 255;
+  else if (l < -255) l = -255;
+
+  const uint8_t bin_val_r = (uint8_t)(uint16_t)(r > 0 ? r : -r);
+  const uint8_t bin_val_l = (uint8_t)(uint16_t)(l > 0 ? l : -l);
+
+  const uint8_t sign_r = (r & (1 << 15)) ? 0x00 : 0xFF;
+  const uint8_t sign_l = (l & (1 << 15)) ? 0x00 : 0xFF;
+
+  PORTH = PORTH & (~((1 << MOTOR_E_L_F) | (1 << MOTOR_E_L_B))) | ((1 << MOTOR_E_L_F) & sign_l | (1 << MOTOR_E_L_B) & ~sign_l);
+  MOTOR_E_L_P = bin_val_l;
+  PORTH = PORTH & (~((1 << MOTOR_E_R_F) | (1 << MOTOR_E_R_B))) | ((1 << MOTOR_E_R_F) & sign_r | (1 << MOTOR_E_R_B) & ~sign_r);
+  MOTOR_E_R_P = bin_val_r;
 }

@@ -14,7 +14,10 @@
 
 void mpu6050_calibrate(MPU6050& mpu);
 
-uint8_t mpu6050_event(MPU6050& mpu, int32_t positioning[9], float angels[3]);
+/**
+ * @param direction[OUT] Q14
+ */
+uint8_t mpu6050_event(MPU6050& mpu, int32_t positioning[9], int16_t direction[3]);
 
 void mpu6050_init(MPU6050& mpu);
 
@@ -26,3 +29,5 @@ void mpu6050_init(MPU6050& mpu);
  * - temp - temperature (raw)
  */
 void mpu6050_getData(int16_t data[7]);
+
+void mpu6050_measure(MPU6050& mpu, int16_t m[6 * 3]);
