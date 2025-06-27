@@ -109,7 +109,7 @@ SKIP_UPDATE:
 
   bool ackStatus = radio.isAckPayloadAvailable();
 
-  Serial.println(F("RF compete"));
+  Serial.println(F("RF complete"));
 }
 
 bool RF24_command(RF24& radio, RF24_com_t& command) {
@@ -129,21 +129,21 @@ bool RF24_command(RF24& radio, RF24_com_t& command) {
   uint8_t data[4] = {0,0,0,0};
 
   radio.read(&data, sizeof(data));
-  // if (data[0] == RF_CS::RF_O) {
-  //   Serial.print("ONLINE \r");
-  // }
-  // else if (data[0] != RF_CS::RF_INVALID) {
-  //   Serial.print(data[0], HEX);
-  //   Serial.print(' ');
-  //   Serial.print(data[1], HEX);
-  //   Serial.print(' ');
-  //   Serial.print(data[2], HEX);
-  //   Serial.print(' ');
-  //   Serial.println(data[3], HEX);
-  // }
+  if (data[0] == RF_CS::RF_O) {
+    Serial.print("ONLINE \r");
+  }
+  else if (data[0] != RF_CS::RF_INVALID) {
+    Serial.print(data[0], HEX);
+    Serial.print(' ');
+    Serial.print(data[1], HEX);
+    Serial.print(' ');
+    Serial.print(data[2], HEX);
+    Serial.print(' ');
+    Serial.println(data[3], HEX);
+  }
 
   if (data[3] != (data[0] ^ data[1] ^ data[2])) {
-    // Serial.println("XOR failed");
+    Serial.println("XOR failed");
     return false;
   }
 
