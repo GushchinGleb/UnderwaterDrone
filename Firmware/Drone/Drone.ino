@@ -263,9 +263,9 @@ void loop() {
     // DBG_SER.print(positioning[7] / ((float)(1L << 10) / 9.8067f / 2 * 10000.f)); DBG_SER.print(" " );
     // DBG_SER.print(positioning[8] / ((float)(1L << 20) / 9.8067f / 2 * 100.f));   DBG_SER.print("  ");
 
-    DBG_SER.print(directions[0] / ((float)(1 << 14))); DBG_SER.print(" " );
-    DBG_SER.print(directions[1] / ((float)(1 << 14))); DBG_SER.print(" " );
-    DBG_SER.print(directions[2] / ((float)(1 << 14))); DBG_SER.print("  ");
+    // DBG_SER.print(directions[0] / ((float)(1 << 14))); DBG_SER.print(" " );
+    // DBG_SER.print(directions[1] / ((float)(1 << 14))); DBG_SER.print(" " );
+    // DBG_SER.print(directions[2] / ((float)(1 << 14))); DBG_SER.print("  ");
 
     // DBG_SER.print(positioning[0], HEX); DBG_SER.print(" " );
     // DBG_SER.print(positioning[1], HEX); DBG_SER.print(" " );
@@ -277,10 +277,10 @@ void loop() {
     // DBG_SER.print(positioning[7], HEX); DBG_SER.print(" " );
     // DBG_SER.print(positioning[8], HEX); DBG_SER.print("  ");
 
-    DBG_SER.print(axis_chs[1]); DBG_SER.print("  ");
-    DBG_SER.print(target_angle); DBG_SER.print(" " );
-    DBG_SER.print(d_angle); DBG_SER.print(" " );
-    DBG_SER.print(target_d_angle); DBG_SER.println(" " );
+    // DBG_SER.print(axis_chs[1]); DBG_SER.print("  ");
+    // DBG_SER.print(target_angle); DBG_SER.print(" " );
+    // DBG_SER.print(d_angle); DBG_SER.print(" " );
+    // DBG_SER.print(target_d_angle); DBG_SER.println(" " );
 
     reads = 0;
   }
